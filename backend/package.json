@@ -1,0 +1,62 @@
+{
+  "name": "geo_backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "docker:up": "docker compose up --build -d",
+    "docker:down": "docker compose down",
+    "docker:restart": "docker compose restart",
+    "docker:rebuild": "yarn docker:down; yarn docker:up",
+    "docker:logs": "docker compose logs -f",
+    "docker:migrate": "docker exec -it monitorar_api npx prisma migrate dev",
+    "cli": "node cli/src/index.js",
+    "lint": "eslint src/**/*.ts --max-warnings=0",
+    "dev": "tsnd -r tsconfig-paths/register --exit-child --respawn --transpile-only --ignore-watch node_modules src/shared/http/server.ts",
+    "build": "babel src --extensions \".js,.ts\" --out-dir dist --copy-files",
+    "start": "tsx ./dist/shared/http/server.js",
+    "prisma:studio": "prisma studio",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:generate": "prisma generate",
+    "test": "jest test --watchAll"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "celebrate": "^15.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "https": "^1.0.0",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "reflect-metadata": "^0.2.2",
+    "tsyringe": "^4.8.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.23.0",
+    "@babel/core": "^7.23.2",
+    "@babel/plugin-proposal-decorators": "^7.23.2",
+    "@babel/preset-env": "^7.23.2",
+    "@babel/preset-typescript": "^7.23.2",
+    "@eslint/js": "^9.5.0",
+    "@types/amqplib": "^0.10.5",
+    "@types/bcrypt": "^5.0.2",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.8",
+    "@types/uuid": "^10.0.0",
+    "babel-plugin-transform-typescript-metadata": "^0.3.2",
+    "globals": "^15.6.0",
+    "ts-jest": "^29.1.5",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
+    "tsx": "^3.13.0",
+    "typescript-eslint": "^7.14.1"
+  },
+  "prisma": {
+    "schema": "src/shared/db/prisma/schema.prisma",
+    "seed": "ts-node src/shared/db/prisma/seeds"
+  }
+}
