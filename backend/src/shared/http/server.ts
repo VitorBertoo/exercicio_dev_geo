@@ -19,11 +19,12 @@ app.use(
 );
 
 app.use(router);
-app.use(handleErrors);
 
 app.get("/", (req, res) => {
   res.json({ success: true });
 });
+
+app.use(handleErrors);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
