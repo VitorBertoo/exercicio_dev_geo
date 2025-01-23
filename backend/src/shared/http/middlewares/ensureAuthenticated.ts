@@ -5,14 +5,16 @@ import { AppError } from "@shared/errors/AppError";
 import { JWTTokenProvider } from "@shared/container/providers/Tokenprovider/JWTTokenProvider";
 
 interface ITokenPayload {
+  id: string;
   name: string;
+  email: string;
 }
 
 export async function ensureAuthenticated(request: Request, _: Response, next: NextFunction): Promise<void> {
   try {
     const authHeader = request.headers.authorization;
 
-    if (!authHeader) throw new AppError("JWT token is missing", 401);
+    if (!authHeader) throw new AppError("Você precisa estar autenticado para acessar esta rota", 401);
 
     const [, token] = authHeader.split(" ");
 
@@ -20,11 +22,13 @@ export async function ensureAuthenticated(request: Request, _: Response, next: N
 
     const decoded = await jwtProvider.verify(token);
 
-    if (!decoded) throw new AppError("Invalid JWT token", 401);
+    if (!decoded) throw new AppError("Token inválido, tente realizar login novamente", 401);
 
-    const { name } = decoded as ITokenPayload;
+    const { id, name, email } = decoded as ITokenPayload;
     request.user = {
-      name
+      id,
+      name,
+      email
     };
 
     return next();
