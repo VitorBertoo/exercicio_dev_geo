@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+
+// se não importa o css do mapbox os controles nem aparecem
+import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
+import "mapbox-gl/dist/mapbox-gl.css";
 import "./globals.css";
 
 const geistSans = Geist({
