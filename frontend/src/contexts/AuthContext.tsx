@@ -36,7 +36,6 @@ export const AuthProvider = ({ children }: AuthContextProvider) => {
   useEffect(() => {
     const authorization = getCookie({ key: "authorization" });
 
-    console.log(authorization);
     if (authorization) setUser(JSON.parse(authorization) as AuthUser);
 
     setLoading(false);

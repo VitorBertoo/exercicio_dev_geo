@@ -1,19 +1,15 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import mapboxgl, { LngLatLike } from "mapbox-gl";
+import mapboxgl from "mapbox-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 
 import * as turf from "@turf/turf";
 import { Polygon } from "geojson";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-
-interface Marker {
-  id: number;
-  lngLat: number[];
-  info: string;
-}
+import { readPoints } from "@/lib/api/points";
+import { Point } from "@/interfaces/point";
 
 export default function Map() {
   const { isAuthenticated, loading } = useAuth();
@@ -25,15 +21,21 @@ export default function Map() {
 
   // cria pontos de exemplo
   // substituir pelos pontos recuperados pelo backend
-  const [selectedMarkers, setSelectedMarkers] = useState<Marker[]>([]);
+  const [selectedMarkers, setSelectedMarkers] = useState<Point[]>([]);
+
+  const [points, setPoints] = useState<Point[]>([]);
 
   console.log(selectedMarkers);
+  console.log(points);
 
-  const [markers] = useState<Marker[]>([
-    { id: 1, lngLat: [-46.696607, -23.55429], info: "Marker 1" },
-    { id: 2, lngLat: [-46.696382, -23.553798], info: "Marker 2" },
-    { id: 3, lngLat: [-46.696312, -23.554325], info: "Marker 3" },
-  ]);
+  const getPoints = async () => {
+    const pontinhos = await readPoints();
+    setPoints(pontinhos);
+  };
+
+  useEffect(() => {
+    getPoints();
+  }, []);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) router.push("/sign-in");
@@ -43,15 +45,14 @@ export default function Map() {
     const updateSelectedMarkers = () => {
       if (drawRef.current) {
         const data = drawRef.current.getAll();
-        console.log(data);
         if (data.features.length) {
           const polygon = data.features[0];
 
           // isso acaba passando por todos os marcadores
           // forma mais eficiente?
-          const selected = markers.filter((marker) =>
+          const selected = points.filter((marker) =>
             turf.booleanPointInPolygon(
-              turf.point(marker.lngLat),
+              turf.point([marker.longitude, marker.latitude]),
               // pegando apenas o geometry da feature (evita erro de typescript)
               polygon.geometry as Polygon
             )
@@ -65,8 +66,8 @@ export default function Map() {
 
     const map = new mapboxgl.Map({
       container: mapContainerRef.current || "map-container",
-      center: [-46.696607, -23.55429], // kognita
-      zoom: 18,
+      center: [-50.547538, -20.267391], // kognita
+      zoom: 13,
     });
 
     drawRef.current = new MapboxDraw({
@@ -81,10 +82,10 @@ export default function Map() {
 
     mapRef.current = map;
 
-    markers.forEach((marker) => {
+    points.forEach((point) => {
       if (mapRef.current)
         new mapboxgl.Marker()
-          .setLngLat(marker.lngLat as LngLatLike)
+          .setLngLat([point.longitude, point.latitude])
           .addTo(mapRef.current);
     });
 
@@ -96,7 +97,7 @@ export default function Map() {
     return () => {
       mapRef.current?.remove();
     };
-  }, [isAuthenticated, loading, markers, router]);
+  }, [isAuthenticated, loading, router, points]);
 
   return (
     <div

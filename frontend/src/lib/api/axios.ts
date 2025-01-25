@@ -12,7 +12,10 @@ const axiosInstance = axios.create({
 // Add request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = getCookie({ key: "token" });
+    const authorization = getCookie({ key: "authorization" });
+
+    const { token } = JSON.parse(authorization);
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -27,7 +30,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      window.location.href = "/login";
+      window.location.href = "/sign-in";
     }
     return Promise.reject(error);
   }
