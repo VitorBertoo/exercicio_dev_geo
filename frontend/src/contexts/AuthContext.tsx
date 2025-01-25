@@ -1,12 +1,17 @@
 "use client";
 
 import { AuthUser } from "@/interfaces/user";
-import { signIn, UserSignIn } from "@/lib/api/authentication";
+import {
+  CreateUserData,
+  signIn,
+  signUp,
+  UserSignIn,
+} from "@/lib/api/authentication";
 import { getCookie } from "@/lib/helpers/cookieHelpers/getCookie";
 import { removeCookie } from "@/lib/helpers/cookieHelpers/removeCookie";
 import { setCookie } from "@/lib/helpers/cookieHelpers/setCookie";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 interface AuthContextProvider {
   children: React.ReactNode;
@@ -17,6 +22,7 @@ interface AuthContextData {
   user: AuthUser | null;
   loading: boolean;
   authUser: (credentials: UserSignIn) => Promise<void>;
+  signUpUser: (userData: CreateUserData) => Promise<void>;
   signOut: () => void;
 }
 
@@ -30,6 +36,7 @@ export const AuthProvider = ({ children }: AuthContextProvider) => {
   useEffect(() => {
     const authorization = getCookie({ key: "authorization" });
 
+    console.log(authorization);
     if (authorization) setUser(JSON.parse(authorization) as AuthUser);
 
     setLoading(false);
@@ -40,11 +47,23 @@ export const AuthProvider = ({ children }: AuthContextProvider) => {
     try {
       const response = await signIn({ email, password });
 
-      const token = response.token;
-
-      if (token) {
+      if (response?.token) {
         setUser(response);
-        setCookie({ key: "authorization", value: token });
+        setCookie({ key: "authorization", value: JSON.stringify(response) });
+        router.push("/map");
+      }
+    } catch (error) {
+      console.error("erro", error);
+    }
+  }
+
+  async function signUpUser({ name, email, password }: CreateUserData) {
+    try {
+      const response = await signUp({ name, email, password });
+
+      if (response?.token) {
+        setUser(response);
+        setCookie({ key: "authorization", value: JSON.stringify(response) });
         router.push("/map");
       }
     } catch (error) {
@@ -64,6 +83,7 @@ export const AuthProvider = ({ children }: AuthContextProvider) => {
         authUser,
         isAuthenticated: !!user?.token,
         signOut,
+        signUpUser,
         user,
         loading,
       }}
@@ -71,4 +91,13 @@ export const AuthProvider = ({ children }: AuthContextProvider) => {
       {children}
     </AuthContext.Provider>
   );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+
+  if (!context)
+    throw new Error("useAuth deve ser usando dentro de um AuthProvider");
+
+  return context;
 };

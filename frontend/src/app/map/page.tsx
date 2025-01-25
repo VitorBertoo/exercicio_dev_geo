@@ -6,6 +6,8 @@ import MapboxDraw from "@mapbox/mapbox-gl-draw";
 
 import * as turf from "@turf/turf";
 import { Polygon } from "geojson";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 interface Marker {
   id: number;
@@ -14,6 +16,9 @@ interface Marker {
 }
 
 export default function Map() {
+  const { isAuthenticated, loading } = useAuth();
+  const router = useRouter();
+
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const drawRef = useRef<MapboxDraw>(null);
@@ -21,15 +26,17 @@ export default function Map() {
   // cria pontos de exemplo
   // substituir pelos pontos recuperados pelo backend
   const [selectedMarkers, setSelectedMarkers] = useState<Marker[]>([]);
+
+  console.log(selectedMarkers);
+
   const [markers] = useState<Marker[]>([
     { id: 1, lngLat: [-46.696607, -23.55429], info: "Marker 1" },
     { id: 2, lngLat: [-46.696382, -23.553798], info: "Marker 2" },
     { id: 3, lngLat: [-46.696312, -23.554325], info: "Marker 3" },
   ]);
 
-  console.log(selectedMarkers);
-
   useEffect(() => {
+    if (!loading && !isAuthenticated) router.push("/sign-in");
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
     // usando função do turf para verificar se os markers estão dentro do poligono
@@ -89,11 +96,13 @@ export default function Map() {
     return () => {
       mapRef.current?.remove();
     };
-  }, [markers]);
+  }, [isAuthenticated, loading, markers, router]);
 
   return (
     <div
-      className="absolute top-0 left-0 h-full w-full"
+      className={`absolute top-0 left-0 h-full w-full ${
+        !isAuthenticated && "hidden"
+      }`}
       id="map-container"
       ref={mapContainerRef}
     ></div>

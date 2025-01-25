@@ -1,5 +1,7 @@
 import { AuthUser } from "@/interfaces/user";
 import axiosInstance from "./axios";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 export interface CreateUserData {
   name: string;
@@ -13,19 +15,39 @@ export interface UserSignIn {
 }
 
 export const signUp = async (user: CreateUserData): Promise<AuthUser> => {
-  const response = await axiosInstance.post<AuthUser>("/user", user);
+  try {
+    const response = await axiosInstance.post<AuthUser>("/user", user);
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error))
+      toast.error(
+        error.response?.data.message || "Erro ao cadastrar. tente novamente"
+      );
+    else toast.error("Erro ao cadastrar. Tente novamente");
+
+    return {} as AuthUser;
+  }
 };
 
 export const signIn = async ({
   email,
   password,
 }: UserSignIn): Promise<AuthUser> => {
-  const response = await axiosInstance.post<AuthUser>("/user/login", {
-    email,
-    password,
-  });
+  try {
+    const response = await axiosInstance.post<AuthUser>("/user/login", {
+      email,
+      password,
+    });
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error))
+      toast.error(
+        error.response?.data.message || "Erro ao fazer login. tente novamente"
+      );
+    else toast.error("Erro ao fazer login. Tente novamente");
+
+    return {} as AuthUser;
+  }
 };
