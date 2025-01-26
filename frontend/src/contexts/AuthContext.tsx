@@ -45,7 +45,6 @@ export const AuthProvider = ({ children }: AuthContextProvider) => {
   async function authUser({ email, password }: UserSignIn) {
     try {
       const response = await signIn({ email, password });
-
       if (response?.token) {
         setUser(response);
         setCookie({ key: "authorization", value: JSON.stringify(response) });

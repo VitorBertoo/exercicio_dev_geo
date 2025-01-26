@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import mapboxgl from "mapbox-gl";
+import mapboxgl, { LngLatLike } from "mapbox-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 
 import * as turf from "@turf/turf";
@@ -15,7 +15,7 @@ export default function Map() {
   const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
 
-  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const mapRef = useRef<mapboxgl.Map>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const drawRef = useRef<MapboxDraw>(null);
 
@@ -46,29 +46,46 @@ export default function Map() {
       if (drawRef.current) {
         const data = drawRef.current.getAll();
         if (data.features.length) {
-          const polygon = data.features[0];
+          let selected: Point[] = [];
 
-          // isso acaba passando por todos os marcadores
-          // forma mais eficiente?
-          const selected = points.filter((marker) =>
-            turf.booleanPointInPolygon(
-              turf.point([marker.longitude, marker.latitude]),
-              // pegando apenas o geometry da feature (evita erro de typescript)
-              polygon.geometry as Polygon
-            )
+          console.log(data.features);
+          data.features.forEach((polygon) => {
+            // isso acaba passando por todos os marcadores
+            // forma mais eficiente?
+            const filteredPoints = points.filter((marker) =>
+              turf.booleanPointInPolygon(
+                turf.point([marker.longitude, marker.latitude]),
+                // pegando apenas o geometry da feature (evita erro de typescript)
+                polygon.geometry as Polygon
+              )
+            );
+
+            selected = [...selected, ...filteredPoints];
+          });
+
+          // evita valores duplicados (caso poligonos sejam criados um em cima do outro)
+          const uniqueValues = selected.filter(
+            (value, index, array) => array.indexOf(value) === index
           );
-          setSelectedMarkers(selected);
+          setSelectedMarkers(uniqueValues);
         } else {
           setSelectedMarkers([]);
         }
       }
     };
 
-    const map = new mapboxgl.Map({
-      container: mapContainerRef.current || "map-container",
-      center: [-50.547538, -20.267391], // kognita
-      zoom: 13,
+    const popup = new mapboxgl.Popup({
+      closeButton: false,
+      closeOnClick: false,
     });
+
+    // RENDERIZANDO MAPA
+    const mapConfig = {
+      container: mapContainerRef.current || "map-container",
+      center: [-50.547538, -20.267391] as LngLatLike,
+      zoom: 13,
+    };
+    const map = new mapboxgl.Map(mapConfig);
 
     drawRef.current = new MapboxDraw({
       displayControlsDefault: false,
@@ -80,15 +97,25 @@ export default function Map() {
 
     map.addControl(drawRef.current);
 
-    mapRef.current = map;
+    // RENDERIZANDO OS PONTOS
+    points.forEach((point, index) => {
+      const el = document.createElement("div");
+      el.className = "marker";
+      el.id = `markser-${index}`;
 
-    points.forEach((point) => {
-      if (mapRef.current)
-        new mapboxgl.Marker()
+      new mapboxgl.Marker(el)
+        .setLngLat([point.longitude, point.latitude])
+        .addTo(map);
+
+      el.addEventListener("mouseenter", () => {
+        popup
           .setLngLat([point.longitude, point.latitude])
-          .addTo(mapRef.current);
+          .setHTML(`<strong>${point.poi_counts}</strong>`)
+          .addTo(map);
+      });
     });
 
+    mapRef.current = map;
     // Handle polygon creation/update
     mapRef.current.on("draw.create", updateSelectedMarkers);
     mapRef.current.on("draw.update", updateSelectedMarkers);
@@ -100,12 +127,18 @@ export default function Map() {
   }, [isAuthenticated, loading, router, points]);
 
   return (
-    <div
-      className={`absolute top-0 left-0 h-full w-full ${
-        !isAuthenticated && "hidden"
-      }`}
-      id="map-container"
-      ref={mapContainerRef}
-    ></div>
+    <>
+      <div
+        className={`absolute top-0 left-0 h-full w-full ${
+          !isAuthenticated && "hidden"
+        }`}
+        id="map-container"
+        ref={mapContainerRef}
+      ></div>
+      <div className="flex flex-col absolute top-0 left-0 bg-gray-700 text-white p-3 rounded-md m-6">
+        <span>Itens Selecionados: {selectedMarkers.length}</span>
+        <span>Soma dos itens Selecionados: {selectedMarkers.length}</span>
+      </div>
+    </>
   );
 }

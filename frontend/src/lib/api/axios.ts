@@ -14,10 +14,12 @@ axiosInstance.interceptors.request.use(
   (config) => {
     const authorization = getCookie({ key: "authorization" });
 
-    const { token } = JSON.parse(authorization);
+    if (authorization) {
+      const { token } = JSON.parse(authorization);
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },

@@ -42,6 +42,7 @@ export const signIn = async ({
 
     return response.data;
   } catch (error) {
+    console.error(error);
     if (axios.isAxiosError(error))
       toast.error(
         error.response?.data.message || "Erro ao fazer login. tente novamente"

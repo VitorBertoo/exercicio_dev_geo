@@ -23,3 +23,16 @@ body {
   overflow-y: hidden;
   min-height: 100vh;
 }
+
+.marker {
+  background-color: #4caf50;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid white;
+}
+
+.mapboxgl-popup {
+  color: black;
+}

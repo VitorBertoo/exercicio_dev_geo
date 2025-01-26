@@ -14,8 +14,8 @@ export const readPoints = async (): Promise<Point[]> => {
     return response.data.points;
   } catch (error) {
     if (axios.isAxiosError(error))
-      toast.error(error.response?.data.message || "Erro ao recuperar pontos");
-    else toast.error("Erro ao recuperar pontos");
+      toast.error(error.response?.data.message || "Autenticação é necessária.");
+    else toast.error("Erro ao recuperar pontos!");
 
     return [];
   }
