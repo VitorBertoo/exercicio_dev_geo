@@ -33,6 +33,10 @@ body {
   border: 2px solid white;
 }
 
+.alternative-color {
+  background-color: #427bd6;
+}
+
 .mapboxgl-popup {
   color: black;
 }
