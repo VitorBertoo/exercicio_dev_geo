@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useRef, useEffect, useState } from "react";
-import mapboxgl, { LngLatLike } from "mapbox-gl";
-import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import { useRef, useEffect, useState } from 'react';
+import mapboxgl, { LngLatLike } from 'mapbox-gl';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
-import * as turf from "@turf/turf";
-import { Polygon } from "geojson";
-import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
-import { readPoints } from "@/lib/api/points";
-import { Point } from "@/interfaces/point";
+import * as turf from '@turf/turf';
+import { Polygon } from 'geojson';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import { readPoints } from '@/lib/api/points';
+import { Point } from '@/interfaces/point';
 
 export default function Map() {
   const { isAuthenticated, loading } = useAuth();
@@ -25,20 +25,19 @@ export default function Map() {
 
   const [points, setPoints] = useState<Point[]>([]);
 
-  console.log(selectedMarkers);
-  console.log(points);
-
   const getPoints = async () => {
     const pontinhos = await readPoints();
     setPoints(pontinhos);
   };
 
+  // Pegando os pontos no backend (só roda uma vez)
   useEffect(() => {
     getPoints();
   }, []);
 
+  // Cria o mapa, adiciona os pontos e observa eventos dos polígonos
   useEffect(() => {
-    if (!loading && !isAuthenticated) router.push("/sign-in");
+    if (!loading && !isAuthenticated) router.push('/sign-in');
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
     // usando função do turf para verificar se os markers estão dentro do poligono
@@ -48,11 +47,10 @@ export default function Map() {
         if (data.features.length) {
           let selected: Point[] = [];
 
-          console.log(data.features);
-          data.features.forEach((polygon) => {
+          data.features.forEach(polygon => {
             // isso acaba passando por todos os marcadores
             // forma mais eficiente?
-            const filteredPoints = points.filter((marker) =>
+            const filteredPoints = points.filter(marker =>
               turf.booleanPointInPolygon(
                 turf.point([marker.longitude, marker.latitude]),
                 // pegando apenas o geometry da feature (evita erro de typescript)
@@ -81,7 +79,7 @@ export default function Map() {
 
     // RENDERIZANDO MAPA
     const mapConfig = {
-      container: mapContainerRef.current || "map-container",
+      container: mapContainerRef.current || 'map-container',
       center: [-50.547538, -20.267391] as LngLatLike,
       zoom: 13,
     };
@@ -99,15 +97,15 @@ export default function Map() {
 
     // RENDERIZANDO OS PONTOS
     points.forEach((point, index) => {
-      const el = document.createElement("div");
-      el.className = "marker";
+      const el = document.createElement('div');
+      el.className = 'marker';
       el.id = `markser-${index}`;
 
       new mapboxgl.Marker(el)
         .setLngLat([point.longitude, point.latitude])
         .addTo(map);
 
-      el.addEventListener("mouseenter", () => {
+      el.addEventListener('mouseenter', () => {
         popup
           .setLngLat([point.longitude, point.latitude])
           .setHTML(`<strong>${point.poi_counts}</strong>`)
@@ -117,27 +115,51 @@ export default function Map() {
 
     mapRef.current = map;
     // Handle polygon creation/update
-    mapRef.current.on("draw.create", updateSelectedMarkers);
-    mapRef.current.on("draw.update", updateSelectedMarkers);
-    mapRef.current.on("draw.delete", () => setSelectedMarkers([]));
+    mapRef.current.on('draw.create', updateSelectedMarkers);
+    mapRef.current.on('draw.update', updateSelectedMarkers);
+    mapRef.current.on('draw.delete', updateSelectedMarkers);
 
     return () => {
       mapRef.current?.remove();
     };
   }, [isAuthenticated, loading, router, points]);
 
+  const getMedianPoints = (points: Point[]): number => {
+    // transforma o array de pontos em um array de números (com o valor de poi_counts)
+    const values = points.map(point => point.poi_counts).sort((a, b) => a - b);
+    const middle = Math.floor(values.length / 2);
+
+    if (values.length % 2 === 0)
+      return (values[middle - 1] + values[middle]) / 2;
+
+    return values[middle];
+  };
+
+  console.log(selectedMarkers);
+
+  /** OPERAÇÕES DOS PONTOS */
+  const sumPoints = selectedMarkers.reduce(
+    // convertendo explicitamente de uma string em número (evita acidentes)
+    (accumulator, point) => accumulator + Number(point.poi_counts),
+    0
+  );
+  const avgPoints = sumPoints / selectedMarkers.length;
+  const medianPoints = getMedianPoints(selectedMarkers);
+
   return (
     <>
       <div
         className={`absolute top-0 left-0 h-full w-full ${
-          !isAuthenticated && "hidden"
+          !isAuthenticated && 'hidden'
         }`}
         id="map-container"
         ref={mapContainerRef}
       ></div>
       <div className="flex flex-col absolute top-0 left-0 bg-gray-700 text-white p-3 rounded-md m-6">
-        <span>Itens Selecionados: {selectedMarkers.length}</span>
-        <span>Soma dos itens Selecionados: {selectedMarkers.length}</span>
+        <span>Quantidade de pontos Selecionados: {selectedMarkers.length}</span>
+        <span>Soma dos pontos Selecionados: {sumPoints || 0}</span>
+        <span>Média dos pontos Selecionados: {avgPoints || 0}</span>
+        <span>Mediana dos pontos Selecionados: {medianPoints || 0}</span>
       </div>
     </>
   );
