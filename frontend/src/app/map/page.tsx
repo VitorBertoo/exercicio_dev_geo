@@ -2,17 +2,16 @@
 
 import { useRef, useEffect, useState } from 'react';
 import mapboxgl, { LngLatLike } from 'mapbox-gl';
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import MapboxDraw, { DrawSelectionChangeEvent } from '@mapbox/mapbox-gl-draw';
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { readPoints } from '@/lib/api/points';
 import { Point } from '@/interfaces/point';
-import { getPointsOperations } from '@/lib/helpers/points/getPointsOperations';
 import { addMarkers } from '@/lib/helpers/map/addMarkers';
-import { updateSelectedMarkers } from '@/lib/helpers/map/updateSelectedMarkers';
 import { addSingleMarker } from '@/lib/helpers/map/addSingleMarker';
 import { getPlace } from '@/lib/openStreetMaps/place';
+import { showPolygonPopup } from '@/lib/helpers/map/showPolygonPopup';
 
 export default function Map() {
   const { isAuthenticated, loading } = useAuth();
@@ -21,10 +20,6 @@ export default function Map() {
   const mapRef = useRef<mapboxgl.Map>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const drawRef = useRef<MapboxDraw>(null);
-
-  // cria pontos de exemplo
-  // substituir pelos pontos recuperados pelo backend
-  const [selectedMarkers, setSelectedMarkers] = useState<Point[]>([]);
 
   const [points, setPoints] = useState<Point[]>([]);
 
@@ -65,18 +60,14 @@ export default function Map() {
 
     map.addControl(drawRef.current);
 
-    // RENDERIZANDO OS PONTOS
+    const polygonPopup = new mapboxgl.Popup();
 
     mapRef.current = map;
-    // Handle polygon creation/update
-    mapRef.current.on('draw.create', () =>
-      updateSelectedMarkers(points, drawRef, setSelectedMarkers)
-    );
-    mapRef.current.on('draw.update', () =>
-      updateSelectedMarkers(points, drawRef, setSelectedMarkers)
-    );
-    mapRef.current.on('draw.delete', () =>
-      updateSelectedMarkers(points, drawRef, setSelectedMarkers)
+
+    // Quando um poligono é selecionado
+    // Quando um polígono é criado ele é automaticamente selecionado
+    mapRef.current.on('draw.selectionchange', (e: DrawSelectionChangeEvent) =>
+      showPolygonPopup({ feature: e.features[0], points, map, polygonPopup })
     );
 
     // desabilitando zoom com double click
@@ -111,9 +102,6 @@ export default function Map() {
     };
   }, [points]);
 
-  /** OPERAÇÕES DOS PONTOS */
-  const pointsOperationResults = getPointsOperations(selectedMarkers);
-
   return (
     <>
       <div
@@ -123,19 +111,6 @@ export default function Map() {
         id="map-container"
         ref={mapContainerRef}
       ></div>
-      <div className="flex flex-col absolute top-0 left-0 bg-gray-700 text-white p-3 rounded-md m-6">
-        <span>Quantidade de pontos Selecionados: {selectedMarkers.length}</span>
-        <span>
-          Soma dos pontos Selecionados: {pointsOperationResults.sumPoints || 0}
-        </span>
-        <span>
-          Média dos pontos Selecionados: {pointsOperationResults.avgPoints || 0}
-        </span>
-        <span>
-          Mediana dos pontos Selecionados:{' '}
-          {pointsOperationResults.medianPoints || 0}
-        </span>
-      </div>
     </>
   );
 }

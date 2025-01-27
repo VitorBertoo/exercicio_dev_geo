@@ -4,6 +4,8 @@ import { Polygon } from 'geojson';
 import { RefObject, SetStateAction } from 'react';
 import * as turf from '@turf/turf';
 
+/* FUNÇÃO INUTILIZADA, MANTIDA APENAS PARA DOCUMENTAÇÃO */
+
 /* resolvi separar a função para facilitar a leitura do componente */
 export const updateSelectedMarkers = (
   points: Point[],
