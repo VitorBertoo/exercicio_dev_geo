@@ -79,14 +79,12 @@ Outra opção é criar uma conta nova, com um email e senha de sua preferencia:
 ## Interagindo com o mapa
 
 Ao acessar a aplicação você terá acesso ao mapa (a quantidade de pontos que são retornados pela API é limitada a 200 por questões de desempenho)
-![](https://i.imgur.com/3UXMouY.png)
+![](https://i.imgur.com/V5EYSDb.jpeg)
 
 Ao clicar em qualquer um dos pontos você deve ser capaz de visualizar informações daquele marcador em específico.
-![](https://i.imgur.com/LzqAFmA.png)
-No canto superior direito da tela existe um controle para criação e exclusão de polígonos.
-
-Ao criar os polígonos, sua área será demarcada e operações serão realizadas nos marcadores localizados no interior da área.
-No canto superior direito é possível ver o resultado destas operações, sendo elas:
+![](https://i.imgur.com/xPsXRLS.jpeg)
+Ao clicar ou selecionar um polígono, você estará selecionando todos os pontos naquela área. A área será demarcada e operações serão realizadas nos marcadores localizados no interior.
+O resultado das operações será exibido em um popup acima do polígono, sendo elas:
 
 - Contagem do total de marcadores
 - Soma dos valores dos pontos selecionados
@@ -95,5 +93,6 @@ No canto superior direito é possível ver o resultado destas operações, sendo
 
 Duplo clique fará aparecer um ponto azul
 
-![](https://i.imgur.com/CiUPw5X.png)
+![](https://i.imgur.com/y41UdZI.jpeg)
 Esse ponto utiliza dados da integração com a API do openStreetMaps para apresentar informações no mapa.
+Os pontos azuis não participam das operações de soma, média, etc. que são realizados nos outros pontos, pois não possui o atributo que é usado nessas operações (poi_count).
