@@ -8,7 +8,8 @@ interface latLng {
 export const addSingleMarker = (
   map: Map,
   latLng: latLng,
-  popupContent: string
+  popupContent: string,
+  alternative?: boolean
 ) => {
   const { lat, lng } = latLng;
 
@@ -18,7 +19,9 @@ export const addSingleMarker = (
   });
 
   const el = document.createElement('div');
-  el.className = 'marker alternative-color';
+  el.className = 'marker';
+
+  if (alternative) el.className += ' alternative-color';
 
   new mapboxgl.Marker(el).setLngLat([lng, lat]).addTo(map);
 

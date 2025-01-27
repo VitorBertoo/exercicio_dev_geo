@@ -8,8 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { readPoints } from '@/lib/api/points';
 import { Point } from '@/interfaces/point';
-import { addMarkers } from '@/lib/helpers/map/addMarkers';
-import { addSingleMarker } from '@/lib/helpers/map/addSingleMarker';
+import { addSingleMarker as addMarker } from '@/lib/helpers/map/addSingleMarker';
 import { getPlace } from '@/lib/openStreetMaps/place';
 import { showPolygonPopup } from '@/lib/helpers/map/showPolygonPopup';
 
@@ -56,7 +55,16 @@ export default function Map() {
       },
     });
 
-    addMarkers(points, map);
+    points.forEach(point => {
+      addMarker(
+        map,
+        { lat: point.latitude, lng: point.longitude },
+        `
+          <p><strong>latitude:</strong> ${point.latitude}</p>
+          <p><strong>longitude:</strong> ${point.longitude}</p>
+          <p><strong>contagem:</strong> ${point.poi_counts}</p>`
+      );
+    });
 
     map.addControl(drawRef.current);
 
@@ -90,10 +98,11 @@ export default function Map() {
         popupContent += `<p><strong>${key}</strong>: ${htmlBuilder[key]} </p>`;
       });
 
-      addSingleMarker(
+      addMarker(
         map,
         e.lngLat,
-        openMapResponse?.error ? 'Sem informação deste ponto.' : popupContent
+        openMapResponse?.error ? 'Sem informação deste ponto.' : popupContent,
+        true
       );
     });
 

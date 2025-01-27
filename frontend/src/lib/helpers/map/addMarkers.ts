@@ -1,6 +1,8 @@
 import { Point } from '@/interfaces/point';
 import mapboxgl, { Map } from 'mapbox-gl';
 
+/* FUNÇÃO INUTILIZADA, MANTIDA APENAS PARA DOCUMENTAÇÃO */
+
 export const addMarkers = (points: Point[], map: Map): void => {
   const popup = new mapboxgl.Popup({
     closeButton: true,
