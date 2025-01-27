@@ -19,7 +19,12 @@ export const addMarkers = (points: Point[], map: Map): void => {
     el.addEventListener('click', () => {
       popup
         .setLngLat([point.longitude, point.latitude])
-        .setHTML(`<strong>${point.poi_counts}</strong>`)
+        .setHTML(
+          `
+          <p><strong>latitude:</strong> ${point.latitude}</p>
+          <p><strong>longitude:</strong> ${point.longitude}</p>
+          <p><strong>contagem:</strong> ${point.poi_counts}</p>`
+        )
         .addTo(map);
     });
   });

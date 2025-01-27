@@ -5,7 +5,7 @@ import { CSVRow } from "./ICSVReaderProvider";
 export class NodeCSVReaderProvider {
   async readCSVFile(filePath: string): Promise<CSVRow[]> {
     let count = 0;
-    const maxRows = 500;
+    const maxRows = 200;
 
     return new Promise((resolve, reject) => {
       const results: CSVRow[] = [];

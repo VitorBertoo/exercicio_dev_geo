@@ -1,21 +1,21 @@
-import { useAuth } from "@/contexts/AuthContext";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { z } from "zod";
+import { useAuth } from '@/contexts/AuthContext';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 const signUpSchema = z
   .object({
-    name: z.string().min(1, "Nome é obrigatório"),
+    name: z.string().min(1, 'Nome é obrigatório'),
     email: z
       .string()
-      .email("Formato de email inválido")
-      .min(1, "Email é obrigatório"),
-    password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
-    confirmPassword: z.string().min(1, "Confirmação de senha é obrigatória"),
+      .email('Formato de email inválido')
+      .min(1, 'Email é obrigatório'),
+    password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
+    confirmPassword: z.string().min(1, 'Confirmação de senha é obrigatória'),
   })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Senhas não coincidem",
-    path: ["confirmPassword"],
+  .refine(data => data.password === data.confirmPassword, {
+    message: 'Senhas não coincidem',
+    path: ['confirmPassword'],
   });
 
 type SignInFormData = z.infer<typeof signUpSchema>;
@@ -31,7 +31,7 @@ export const SignUpForm = () => {
 
   const { signUpUser } = useAuth();
 
-  const onSubmit: SubmitHandler<SignInFormData> = (data) => {
+  const onSubmit: SubmitHandler<SignInFormData> = data => {
     signUpUser({ name: data.name, email: data.email, password: data.password });
   };
 
@@ -47,7 +47,7 @@ export const SignUpForm = () => {
           type="text"
           id="email-input"
           className="bg-gray-900 rounded-md border-cyan-700 border-solid border p-2"
-          {...register("name")}
+          {...register('name')}
         />
         {errors.name && <span>{errors.name.message}</span>}
       </div>
@@ -57,7 +57,7 @@ export const SignUpForm = () => {
           type="text"
           id="email-input"
           className="bg-gray-900 rounded-md border-cyan-700 border-solid border p-2"
-          {...register("email")}
+          {...register('email')}
         />
         {errors.email && <span>{errors.email.message}</span>}
       </div>
@@ -67,7 +67,7 @@ export const SignUpForm = () => {
           type="password"
           id="password-input"
           className="bg-gray-900 rounded-md border-cyan-700 border-solid border p-2"
-          {...register("password")}
+          {...register('password')}
         />
         {errors.password && <span>{errors.password.message}</span>}
       </div>
@@ -77,7 +77,7 @@ export const SignUpForm = () => {
           type="password"
           id="confirm-password-input"
           className="bg-gray-900 rounded-md border-cyan-700 border-solid border p-2"
-          {...register("confirmPassword")}
+          {...register('confirmPassword')}
         />
         {errors.confirmPassword && (
           <span>{errors.confirmPassword.message}</span>
@@ -87,7 +87,7 @@ export const SignUpForm = () => {
         className="mx-auto mt-8 border border-solid p-2 rounded-md"
         type="submit"
       >
-        ENTRAR
+        Cadastrar
       </button>
     </form>
   );

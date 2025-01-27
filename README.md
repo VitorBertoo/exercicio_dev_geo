@@ -1,97 +1,99 @@
 # Teste para Desenvolvedor Fullstack - Kognita
 
-## Informações gerais
+Aplicação desenvolvida como teste para a vaga de Desenvolvedor Fullstack da Kognita
 
-1. Sobre o prazo de entrega: 1 semana (7 dias) a partir do recebimento do mesmo.
-2. Não é permitido compartilhar esse exercício com terceiros.
+# Executando:
 
+Antes de executar qualquer um dos comandos abaixo, é necessário primeiro renomear os arquivos `example.env` e `example.env.local` que estão presentes nas pastas `frontend` e `backend`. Removendo "example" de seus respectivos nomes, isso irá configurar as variáveis de ambiente tanto de frontend e backend.
 
-## Objetivo do Teste
+### IMPORTANTE
 
-Criar uma aplicação web interativa com mapas que permita o usuário final visualizar e interagir com dados geoespaciais.
+Será necessário também alterar o conteúdo do arquivo `.env.local` adicionando um token do mapbox válido ao campo `NEXT_PUBLIC_MAPBOX_TOKEN`.
 
----
+## Backend
 
-## Instruções de Entrega
+### Docker
 
-1. **Fork do Repositório Original**  
-   Crie um fork do repositório original para sua conta no GitHub. Isso permitirá que você trabalhe no projeto sem alterar o repositório principal.
+Se docker estiver instalado, o backend e o banco de dados são executados com um simples comando na pasta raiz do projeto:
 
-2. **Desenvolvimento e Histórico de Commits**  
-   Realize todas as alterações e implementações diretamente no repositório forkeado. Certifique-se de manter um histórico de commits que demonstre o progresso e as decisões técnicas tomadas.
+```
+docker compose up --build -d
+```
 
-3. **Entrega Final**  
-   A entrega deve ser feita por meio do repositório "forkeado", contendo:  
-   - Um arquivo `README.md` com instruções claras sobre como configurar, rodar e testar a aplicação.
+Ou na pasta backend:
 
----
+```
+npm run docker:up
+```
 
-## Passo a Passo para o Desenvolvimento
+### Sem Docker
 
-1. **Configuração Inicial**  
-   - Escolha e configure as dependências necessárias para o projeto (ex.: React ou outro framework, Leaflet/Mapbox, Express).  
-   - Configure um servidor básico usando Node.js para servir a aplicação e processar chamadas à API.
-  
-2. **Utilização das Bases de Dados**  
-   - Use os arquivos fornecidos na pasta `files` para adicionar pontos ao mapa.  
-   - Configure eventos para que, ao clicar ou passar o mouse sobre os marcadores, a informação de `censo_2022_domicilio_particular_poi_counts` seja exibida.  
+Para inicializar a aplicação sem utilizar o docker é necessário ter o Node instalado e um banco de dados que possa ser utilizado pelo backend.
 
-3. **Implementação do Mapa**  
-   - Exiba o mapa utilizando **Leaflet** ou **Mapbox**.  
-   - Implemente funcionalidades que permitam desenhar polígonos no mapa, e realizar e exibir o resultado de operações sobre a área demarcada para o usuário final. Operações: total de pontos, soma, média e mediana.
+Com um banco de dados criado e pronto pra uso siga os seguintes passos:
 
-4. **Integração com a API OpenStreetMap**  
-   - Adicione uma funcionalidade que permita que o usuário insira pinos ao clicar no mapa.  
-   - Para cada pino adicionado, consulte a API do OpenStreetMap com as coordenadas correspondentes.  
-   - Persista e exiba (quando possível) as informações retornadas ao clicar ou passar o mouse sobre os pinos.
-    - O ponto { lat: 40.748817, lon: -73.985428} tem o seguinte resultado: 
-        ```bash
-        {
-            "place_id": 123456,
-            "lat": "40.748817",
-            "lon": "-73.985428",
-            "display_name": "Empire State Building, New York, NY, USA",
-            "address": {
-                "building": "Empire State Building",
-                "city": "New York",
-                "state": "NY",
-                "country": "United States",
-                "postcode": "10118"
-            }
-        }
-        ```
+- Altere o campo `DATABASE_URL` do arquivo `example.env` dentro da pasta backend para a URL de conexão do seu banco
+- Dentro da pasta backend execute o comando:
 
-5. **Testes e Documentação**  
-   - Inclua testes básicos para validar o funcionamento das principais funcionalidades.  
-   - Documente todo o processo no `README.md`, incluindo como instalar dependências, rodar a aplicação e executar os testes.
+```
+npm i; npx prisma migrate deploy; npx prisma generate; npx prisma db seed; npm run dev
+```
 
----
+Esse comando executa as funções de migração do banco, instala as dependências e inicia a aplicação.
 
-## Desafios Adicionais (Extras)
+Pronto, o backend está de pé e pronto pra uso
 
-Para destacar ainda mais suas habilidades, implemente uma ou mais das funcionalidades abaixo:
+## Frontend
 
-1. **Autenticação JWT**  
-   - Implemente autenticação no backend utilizando **JSON Web Tokens (JWT)** para proteger as rotas.
+Com o backend em execução, resta apenas executar o frontend, o que exige muito menos passos. Para fazer isto, na pasta "frontend" execute o comando:
 
-2. **Persistência de Dados**  
-   - Salve as consultas feitas pelo usuário em um banco de dados.  
-   - Armazene as operações realizadas, como o desenho de polígonos e adição de pinos, em um banco de dados local ou em memória.
+```
+npm install
+```
 
-3. **Filtros e Edição de Pinos**  
-   - Adicione filtros que permitam exibir apenas determinados tipos de pontos da base de dados fake no mapa.  
-   - Implemente funcionalidades para editar ou remover pinos adicionados pelo usuário.
+Isso vai instalar as dependências do projeto. Quando as dependências estiverem instaladas, na mesma pasta, execute o seguinte comando:
 
-4. **Testes Automatizados**  
-   - Adicione testes automatizados usando ferramentas como **Jest**, **Cypress** ou similares.
+```
+npm run dev
+```
 
----
+# Testando a aplicação
 
-## Critérios de Avaliação
+As principais funcionalidades da aplicação são:
 
-- **Organização do Código**: Qualidade, clareza e modularidade do código.  
-- **Funcionalidade**: Implementação correta e funcionalidade das features solicitadas.  
-- **Documentação**: Instruções claras no README e histórico de commits detalhado.  
-- **Extras**: Implementação dos desafios adicionais.  
+-
 
-Boa sorte e divirta-se desenvolvendo! 🚀
+## Fazendo login
+
+A aplicação utiliza rotas autenticadas com JWT, então para acessar as funcionalidades é necessário realizar login primeiro.
+Utilizar uma conta de teste criada através das seeds:
+email: usuario.teste@gmail.com
+senha: senha123
+
+![](https://i.imgur.com/V5h3Icm.png)
+
+Outra opção é criar uma conta nova, com um email e senha de sua preferencia:
+
+![](https://i.imgur.com/woXYUGc.png)
+
+## Interagindo com o mapa
+
+Ao acessar a aplicação você terá acesso ao mapa (a quantidade de pontos que são retornados pela API é limitada a 200 por questões de desempenho)
+![](https://i.imgur.com/3UXMouY.png)
+
+Ao clicar em qualquer um dos pontos você deve ser capaz de visualizar informações daquele marcador em específico.
+![](https://i.imgur.com/LzqAFmA.png)
+No canto superior direito da tela existe um controle para criação e exclusão de polígonos.
+
+Ao criar os polígonos, sua área será demarcada e operações serão realizadas nos marcadores localizados no interior da área.
+No canto superior direito é possível ver o resultado destas operações, sendo elas:
+
+- Contagem do total de marcadores
+- Soma dos valores dos pontos selecionados
+- Média dos valores dos pontos
+- Mediana dos valores dos pontos
+
+Duplo clique fará aparecer um ponto azul
+
+![](https://i.imgur.com/CiUPw5X.png)
+Esse ponto utiliza dados da integração com a API do openStreetMaps para apresentar informações no mapa.
