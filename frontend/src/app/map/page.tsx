@@ -13,7 +13,7 @@ import { getPlace } from '@/lib/openStreetMaps/place';
 import { showPolygonPopup } from '@/lib/helpers/map/showPolygonPopup';
 
 export default function Map() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user, signOut } = useAuth();
   const router = useRouter();
 
   const mapRef = useRef<mapboxgl.Map>(null);
@@ -120,6 +120,15 @@ export default function Map() {
         id="map-container"
         ref={mapContainerRef}
       ></div>
+      <div className="absolute top-0 left-0 bg-gray-800 rounded-sm p-3 m-3">
+        <p>Bem Vindo, {user?.user.name}</p>
+        <span
+          onClick={signOut}
+          className="cursor-pointer py-2 text-gray-300 hover:text-gray-600"
+        >
+          Logout
+        </span>
+      </div>
     </>
   );
 }
